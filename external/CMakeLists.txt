@@ -46,4 +46,5 @@ function(configure_test testExecutable)
     add_test(${testName} ${testExecutable} ${GTEST_RUN_FLAGS})
 endfunction(configure_test)
 
-enable_testing()
+### Paho MQTT
+add_subdirectory(paho-mqtt)
