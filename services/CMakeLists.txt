@@ -1,0 +1,1 @@
+add_executable(mqtt_publisher_subscriber_main mqtt_publisher_subscriber.cpp)

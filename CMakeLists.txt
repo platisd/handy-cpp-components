@@ -22,9 +22,11 @@ add_compile_options(
         -Wstrict-aliasing
         -Wall
         -Wextra
-        -Werror
+        #-Werror
 )
 
 add_subdirectory(external)
 enable_testing()
 
+add_subdirectory(communication)
+add_subdirectory(services)

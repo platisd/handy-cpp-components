@@ -1,0 +1,4 @@
+add_library(publisher_subscriber_interface INTERFACE)
+target_include_directories(publisher_subscriber_interface INTERFACE publisher_subscriber)
+
+add_subdirectory(mqtt)
