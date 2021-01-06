@@ -28,5 +28,8 @@ add_compile_options(
 add_subdirectory(external)
 enable_testing()
 
+add_subdirectory(queues)
 add_subdirectory(communication)
 add_subdirectory(services)
+
+add_subdirectory(test)
