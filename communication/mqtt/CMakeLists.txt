@@ -5,4 +5,8 @@ target_include_directories(paho_mqtt_publisher_subscriber
     include)
 target_link_libraries(paho_mqtt_publisher_subscriber
     PUBLIC
+    paho-mqttpp3
+    paho-mqttc3::MQTTAsync
+    queue_interface
+    key_value_message
     publisher_subscriber_interface)

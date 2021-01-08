@@ -1,13 +1,45 @@
 #pragma once
 
-#include "PublisherSubscriber.h"
+#include <mutex>
+#include <string>
+#include <unordered_map>
+#include <vector>
 
-class PahoMqttPublisherSubscriber : public PublisherSubscriber
+#include <mqtt/async_client.h>
+
+#include "KeyValueMessage.h"
+#include "PublisherSubscriber.h"
+#include "Queue.h"
+
+class PahoMqttPublisherSubscriber
+    : public PublisherSubscriber
+    , public mqtt::callback
 {
 public:
+    PahoMqttPublisherSubscriber(mqtt::async_client& asynchronousClient,
+                                Queue<KeyValueMessage>& incomingMessages,
+                                std::vector<std::string> topicsToSubscribe);
+
     /* Refer to PublisherSubscriber for documentation */
     bool publish(const std::string& topic, const std::string& message) override;
-    int subscribe(const std::string& topic,
-                  std::function<void(const std::string&)> callback) override;
-    bool unsubscribe(const std::string& topic, int id) override;
+    bool setCallback(
+        const std::string& topic,
+        std::function<void(const std::string&)> callbackFunction) override;
+
+    /* Refer to mqtt::callback interface for documentation */
+    void message_arrived(mqtt::const_message_ptr msg) override;
+    void connected(const std::string& cause) override;
+
+    void processIncomingMessage();
+
+private:
+    mqtt::async_client& mAsynchronousClient;
+    Queue<KeyValueMessage>& mIncomingMessages;
+    const std::vector<std::string> mTopicsToSubscribe;
+
+    std::mutex mPublishMutex;
+    std::mutex mRegisterCallbackMutex;
+    std::unordered_map<std::string,
+                       std::vector<std::function<void(const std::string&)>>>
+        mCallbacks;
 };

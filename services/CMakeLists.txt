@@ -1,7 +1,11 @@
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
+
 add_executable(mqtt_publisher_subscriber_main mqtt_publisher_subscriber.cpp)
 target_link_libraries(mqtt_publisher_subscriber_main
     PRIVATE
-    paho-mqttpp3
-    paho-mqttc3::MQTTAsync
     lifo_queue
+    paho_mqtt_publisher_subscriber
+    key_value_message
+    Threads::Threads
     )
