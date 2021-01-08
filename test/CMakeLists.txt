@@ -1,0 +1,4 @@
+# LifoQueue_test
+add_executable(lifo_queue_test LifoQueue_test.cpp)
+target_link_libraries(lifo_queue_test lifo_queue)
+configure_test(lifo_queue_test)

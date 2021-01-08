@@ -12,9 +12,9 @@ template<typename T>
 class LifoQueue : public Queue<T>
 {
 public:
-    void enqueue(T t)
+    void insert(T t)
     {
-        std::lock_guard<std::mutex> lock(mEnqueueMutex);
+        std::lock_guard<std::mutex> lock(minsertMutex);
         mElements.emplace_back(t);
         mConditionVariable.notify_one();
     }
@@ -42,14 +42,14 @@ public:
     }
 
 private:
-    std::mutex mEnqueueMutex;
+    std::mutex minsertMutex;
     std::mutex mPopMutex;
     std::condition_variable mConditionVariable;
     std::vector<T> mElements;
 
     T getAndPopLastElement()
     {
-        std::lock_guard<std::mutex> lock(mEnqueueMutex);
+        std::lock_guard<std::mutex> lock(minsertMutex);
         const auto lastElement = mElements.back();
         mElements.pop_back();
 
