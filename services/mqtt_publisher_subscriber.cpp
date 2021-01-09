@@ -2,8 +2,8 @@
 
 #include "KeyValueMessage.h"
 #include "LifoQueue.h"
+#include "MqttPublisherSubscriber.h"
 #include "PahoMqttClient.h"
-#include "PahoMqttPublisherSubscriber.h"
 
 namespace
 {
@@ -20,7 +20,7 @@ int main()
 
     LifoQueue<KeyValueMessage> incomingQueue;
     LifoQueue<std::pair<long, KeyValueMessage>> outgoingQueue;
-    PahoMqttPublisherSubscriber mqttPublisherSubscriber{
+    MqttPublisherSubscriber mqttPublisherSubscriber{
         pahoMqttClient, incomingQueue, outgoingQueue};
 
     mqttPublisherSubscriber.runOnTopicArrival(

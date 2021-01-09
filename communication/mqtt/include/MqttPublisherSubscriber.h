@@ -11,17 +11,17 @@
 #include "PublisherSubscriber.h"
 #include "Queue.h"
 
-class PahoMqttPublisherSubscriber : public PublisherSubscriber
+class MqttPublisherSubscriber : public PublisherSubscriber
 {
 public:
     /**
-     * @brief Construct a new Paho Mqtt Publisher Subscriber object
+     * @brief Construct a new MqttPublisherSubscriber object
      *
      * @param mqttClient        An mqtt asynchronous client already set up
      * @param incomingMessages  A queue to hangle the incoming messages
      * @param outgoingMessages  A queue to handle the outgoing messages
      */
-    PahoMqttPublisherSubscriber(
+    MqttPublisherSubscriber(
         MqttClient& mqttClient,
         Queue<KeyValueMessage>& incomingMessages,
         Queue<std::pair<long, KeyValueMessage>>& outgoingMessages);

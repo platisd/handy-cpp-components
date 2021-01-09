@@ -1,8 +1,8 @@
 #include <algorithm>
 
-#include "PahoMqttPublisherSubscriber.h"
+#include "MqttPublisherSubscriber.h"
 
-PahoMqttPublisherSubscriber::PahoMqttPublisherSubscriber(
+MqttPublisherSubscriber::MqttPublisherSubscriber(
     MqttClient& mqttClient,
     Queue<KeyValueMessage>& incomingMessages,
     Queue<std::pair<long, KeyValueMessage>>& outgoingMessages)
@@ -17,9 +17,8 @@ PahoMqttPublisherSubscriber::PahoMqttPublisherSubscriber(
         });
 }
 
-std::future<bool>
-PahoMqttPublisherSubscriber::publish(const std::string& topic,
-                                     const std::string& message)
+std::future<bool> MqttPublisherSubscriber::publish(const std::string& topic,
+                                                   const std::string& message)
 {
     std::lock_guard<std::mutex> lock(mPublishMutex);
     const auto unpublishedMessageIndex = mUnpublishedMessageIndex++;
@@ -30,7 +29,7 @@ PahoMqttPublisherSubscriber::publish(const std::string& topic,
     return mUnpublishedMessagePromises[unpublishedMessageIndex].get_future();
 }
 
-bool PahoMqttPublisherSubscriber::runOnTopicArrival(
+bool MqttPublisherSubscriber::runOnTopicArrival(
     const std::string& topic,
     std::function<void(const std::string&)> callbackFunction)
 {
@@ -48,7 +47,7 @@ bool PahoMqttPublisherSubscriber::runOnTopicArrival(
     return true;
 }
 
-void PahoMqttPublisherSubscriber::processIncomingMessage()
+void MqttPublisherSubscriber::processIncomingMessage()
 {
     const auto message = mIncomingMessages.pop();
     if (mCallbacks.contains(message.key))
@@ -60,7 +59,7 @@ void PahoMqttPublisherSubscriber::processIncomingMessage()
     }
 }
 
-void PahoMqttPublisherSubscriber::processOutgoingMessage()
+void MqttPublisherSubscriber::processOutgoingMessage()
 {
     const auto& [unpublishedMessageIndex, message] = mOutgoingMessages.pop();
     const auto result

@@ -5,7 +5,7 @@ add_executable(mqtt_publisher_subscriber_main mqtt_publisher_subscriber.cpp)
 target_link_libraries(mqtt_publisher_subscriber_main
     PRIVATE
     lifo_queue
-    paho_mqtt_publisher_subscriber
+    mqtt_publisher_subscriber
     key_value_message
     paho_mqtt_client
     Threads::Threads
