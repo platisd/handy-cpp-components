@@ -32,7 +32,7 @@ struct PublisherSubscriber
      */
 
     virtual bool
-    setCallback(const std::string& topic,
-                std::function<void(const std::string&)> callbackFunction)
+    runOnTopicArrival(const std::string& topic,
+                      std::function<void(const std::string&)> callbackFunction)
         = 0;
 };

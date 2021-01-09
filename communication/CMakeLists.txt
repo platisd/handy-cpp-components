@@ -4,4 +4,7 @@ target_include_directories(publisher_subscriber_interface INTERFACE publisher_su
 add_library(key_value_message INTERFACE)
 target_include_directories(key_value_message INTERFACE messages/key_value_message)
 
+add_library(mqtt_client_interface INTERFACE)
+target_include_directories(mqtt_client_interface INTERFACE mqtt/mqtt_client)
+
 add_subdirectory(mqtt)

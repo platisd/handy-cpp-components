@@ -1,60 +1,20 @@
 #include <algorithm>
-#include <chrono>
-#include <stdexcept>
 
 #include "PahoMqttPublisherSubscriber.h"
 
-namespace
-{
-constexpr auto kQoS = 1;
-
-class PahoCallback : public mqtt::iaction_listener
-{
-public:
-    void on_failure(const mqtt::token& /* asyncActionToken */) override
-    {
-        mDeliveryPromise.set_value(false);
-    }
-
-    void on_success(const mqtt::token& /* asyncActionToken */) override
-    {
-        mDeliveryPromise.set_value(true);
-    }
-
-    bool getDeliveryResult()
-    {
-        return mDeliveryFuture.get();
-    }
-
-private:
-    std::promise<bool> mDeliveryPromise;
-    std::future<bool> mDeliveryFuture{mDeliveryPromise.get_future()};
-};
-} // namespace
-
-using namespace std::chrono_literals;
-
 PahoMqttPublisherSubscriber::PahoMqttPublisherSubscriber(
-    mqtt::async_client& asynchronousClient,
+    MqttClient& mqttClient,
     Queue<KeyValueMessage>& incomingMessages,
-    Queue<std::pair<long, KeyValueMessage>>& outgoingMessages,
-    std::vector<std::string> topicsToSubscribe)
-    : mAsynchronousClient{asynchronousClient}
+    Queue<std::pair<long, KeyValueMessage>>& outgoingMessages)
+    : mMqttClient{mqttClient}
     , mIncomingMessages{incomingMessages}
     , mOutgoingMessages{outgoingMessages}
-    , mTopicsToSubscribe{topicsToSubscribe}
+    , mTopicsToSubscribe{mqttClient.getTopics()}
 {
-    mAsynchronousClient.set_callback(*this);
-    mqtt::connect_options opts;
-    opts.set_automatic_reconnect(true);
-    opts.set_clean_session(false);
-    auto connectionToken   = mAsynchronousClient.connect(opts);
-    auto connectionSuccess = connectionToken->wait_for(10s);
-
-    if (!connectionSuccess)
-    {
-        throw std::runtime_error("Paho MQTT Client failed to connect");
-    }
+    mqttClient.onMessageReceived(
+        [this](const std::string& topic, const std::string& message) {
+            mIncomingMessages.insert({topic, message});
+        });
 }
 
 std::future<bool>
@@ -70,7 +30,7 @@ PahoMqttPublisherSubscriber::publish(const std::string& topic,
     return mUnpublishedMessagePromises[unpublishedMessageIndex].get_future();
 }
 
-bool PahoMqttPublisherSubscriber::setCallback(
+bool PahoMqttPublisherSubscriber::runOnTopicArrival(
     const std::string& topic,
     std::function<void(const std::string&)> callbackFunction)
 {
@@ -88,19 +48,6 @@ bool PahoMqttPublisherSubscriber::setCallback(
     return true;
 }
 
-void PahoMqttPublisherSubscriber::message_arrived(mqtt::const_message_ptr msg)
-{
-    mIncomingMessages.insert({msg->get_topic(), msg->get_payload()});
-}
-
-void PahoMqttPublisherSubscriber::connected(const std::string& /* cause */)
-{
-    for (const auto& topic : mTopicsToSubscribe)
-    {
-        mAsynchronousClient.subscribe(topic, kQoS);
-    }
-}
-
 void PahoMqttPublisherSubscriber::processIncomingMessage()
 {
     const auto message = mIncomingMessages.pop();
@@ -116,13 +63,8 @@ void PahoMqttPublisherSubscriber::processIncomingMessage()
 void PahoMqttPublisherSubscriber::processOutgoingMessage()
 {
     const auto& [unpublishedMessageIndex, message] = mOutgoingMessages.pop();
-
-    const auto mqttMessage = mqtt::make_message(message.key, message.value);
-    mqttMessage->set_qos(kQoS);
-
-    PahoCallback pahoCallback;
-    mAsynchronousClient.publish(mqttMessage, nullptr, pahoCallback);
-    const auto result = pahoCallback.getDeliveryResult();
+    const auto result
+        = mMqttClient.sendAndWaitForDelivery(message.key, message.value);
 
     mUnpublishedMessagePromises[unpublishedMessageIndex].set_value(result);
     mUnpublishedMessagePromises.erase(unpublishedMessageIndex);

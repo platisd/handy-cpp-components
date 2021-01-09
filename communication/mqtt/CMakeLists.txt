@@ -8,8 +8,17 @@ target_include_directories(paho_mqtt_publisher_subscriber
     include)
 target_link_libraries(paho_mqtt_publisher_subscriber
     PUBLIC
-    paho-mqttpp3
-    paho-mqtt3a
     queue_interface
     key_value_message
-    publisher_subscriber_interface)
+    publisher_subscriber_interface
+    mqtt_client_interface)
+
+add_library(paho_mqtt_client src/PahoMqttClient.cpp)
+target_include_directories(paho_mqtt_client
+    PUBLIC
+    include)
+target_link_libraries(paho_mqtt_client
+    PUBLIC
+    paho-mqttpp3
+    paho-mqtt3a
+    mqtt_client_interface)

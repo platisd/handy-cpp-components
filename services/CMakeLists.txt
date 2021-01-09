@@ -7,5 +7,6 @@ target_link_libraries(mqtt_publisher_subscriber_main
     lifo_queue
     paho_mqtt_publisher_subscriber
     key_value_message
+    paho_mqtt_client
     Threads::Threads
     )
