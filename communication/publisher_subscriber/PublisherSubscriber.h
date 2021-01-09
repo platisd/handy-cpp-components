@@ -1,6 +1,7 @@
 #pragma once
 
 #include <functional>
+#include <future>
 #include <string>
 
 struct PublisherSubscriber
@@ -15,7 +16,8 @@ struct PublisherSubscriber
      * @return true     When publish succeeded
      * @return false    When publish failed
      */
-    virtual bool publish(const std::string& topic, const std::string& message)
+    virtual std::future<bool> publish(const std::string& topic,
+                                      const std::string& message)
         = 0;
 
     /**

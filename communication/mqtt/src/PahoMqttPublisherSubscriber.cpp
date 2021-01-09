@@ -7,6 +7,29 @@
 namespace
 {
 constexpr auto kQoS = 1;
+
+class PahoCallback : public mqtt::iaction_listener
+{
+public:
+    void on_failure(const mqtt::token& /* asyncActionToken */) override
+    {
+        mDeliveryPromise.set_value(false);
+    }
+
+    void on_success(const mqtt::token& /* asyncActionToken */) override
+    {
+        mDeliveryPromise.set_value(true);
+    }
+
+    bool getDeliveryResult()
+    {
+        return mDeliveryFuture.get();
+    }
+
+private:
+    std::promise<bool> mDeliveryPromise;
+    std::future<bool> mDeliveryFuture{mDeliveryPromise.get_future()};
+};
 } // namespace
 
 using namespace std::chrono_literals;
@@ -14,9 +37,11 @@ using namespace std::chrono_literals;
 PahoMqttPublisherSubscriber::PahoMqttPublisherSubscriber(
     mqtt::async_client& asynchronousClient,
     Queue<KeyValueMessage>& incomingMessages,
+    Queue<std::pair<long, KeyValueMessage>>& outgoingMessages,
     std::vector<std::string> topicsToSubscribe)
     : mAsynchronousClient{asynchronousClient}
     , mIncomingMessages{incomingMessages}
+    , mOutgoingMessages{outgoingMessages}
     , mTopicsToSubscribe{topicsToSubscribe}
 {
     mAsynchronousClient.set_callback(*this);
@@ -32,15 +57,17 @@ PahoMqttPublisherSubscriber::PahoMqttPublisherSubscriber(
     }
 }
 
-bool PahoMqttPublisherSubscriber::publish(const std::string& topic,
-                                          const std::string& message)
+std::future<bool>
+PahoMqttPublisherSubscriber::publish(const std::string& topic,
+                                     const std::string& message)
 {
-
-    const auto mqttMessage = mqtt::make_message(topic, message);
-    mqttMessage->set_qos(kQoS);
-
     std::lock_guard<std::mutex> lock(mPublishMutex);
-    return mAsynchronousClient.publish(mqttMessage) == MQTTASYNC_SUCCESS;
+    const auto unpublishedMessageIndex = mUnpublishedMessageIndex++;
+    mOutgoingMessages.insert({unpublishedMessageIndex, {topic, message}});
+
+    mUnpublishedMessagePromises[unpublishedMessageIndex] = std::promise<bool>{};
+
+    return mUnpublishedMessagePromises[unpublishedMessageIndex].get_future();
 }
 
 bool PahoMqttPublisherSubscriber::setCallback(
@@ -84,4 +111,19 @@ void PahoMqttPublisherSubscriber::processIncomingMessage()
             callbackFunction(message.value);
         }
     }
+}
+
+void PahoMqttPublisherSubscriber::processOutgoingMessage()
+{
+    const auto& [unpublishedMessageIndex, message] = mOutgoingMessages.pop();
+
+    const auto mqttMessage = mqtt::make_message(message.key, message.value);
+    mqttMessage->set_qos(kQoS);
+
+    PahoCallback pahoCallback;
+    mAsynchronousClient.publish(mqttMessage, nullptr, pahoCallback);
+    const auto result = pahoCallback.getDeliveryResult();
+
+    mUnpublishedMessagePromises[unpublishedMessageIndex].set_value(result);
+    mUnpublishedMessagePromises.erase(unpublishedMessageIndex);
 }
