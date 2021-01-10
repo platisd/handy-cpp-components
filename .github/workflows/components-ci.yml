@@ -1,0 +1,54 @@
+name: Components CI
+
+on: [push]
+
+jobs:
+
+  build-examples:
+    runs-on: ubuntu-18.04
+    strategy:
+      matrix:
+        compiler:
+          - cc: gcc-9
+            cxx: g++-9
+          - cc: clang-9
+            cxx: clang++-9
+    env:
+      CC: ${{ matrix.compiler.cc }}
+      CXX: ${{ matrix.compiler.cxx }}
+      build_dir: build
+
+    steps:
+      - name: Fetch compiler
+        run: |
+          sudo apt-get install -y ${{ matrix.compiler.cc }}
+          sudo apt-get install -y ${{ matrix.compiler.cxx }}
+      - name: Fetch dependencies for Paho MQTT libraries
+        run: |
+          sudo apt-get install libssl-dev
+          sudo apt-get install doxygen
+      - name: Install Paho MQTT C library
+        run: |
+          git clone https://github.com/eclipse/paho.mqtt.c.git
+          cd paho.mqtt.c
+          git checkout v1.3.8
+          cmake -Bbuild -H. -DPAHO_ENABLE_TESTING=OFF -DPAHO_BUILD_STATIC=ON -DPAHO_WITH_SSL=ON
+          sudo cmake --build build/ --target install
+          sudo ldconfig
+      - name: Install Paho MQTT C++ library
+        run: |
+          git clone https://github.com/eclipse/paho.mqtt.cpp
+          cd paho.mqtt.cpp
+          cmake -Bbuild -H. -DPAHO_BUILD_STATIC=ON
+          sudo cmake --build build/ --target install
+          sudo ldconfig
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Create build directory
+        run: mkdir -p ${build_dir}
+      - name: Configure project
+        run: cd ${build_dir} && cmake ..
+      - name: Build project
+        run: cmake --build ${build_dir} -- -j$(nproc)
+      - name: Run unit tests
+        run: cd ${build_dir} && ctest

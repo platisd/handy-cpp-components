@@ -1,4 +1,4 @@
-# Handy C++ components
+# Handy C++ components ![Components CI]
 
 A collection of useful C++ components.
 
@@ -35,3 +35,5 @@ need to fetch all of their dependencies:
 * Paho MQTT C and C++ libraries
   * [Instructions for Ubuntu](https://github.com/eclipse/paho.mqtt.cpp#unix-and-linux)
   * [Instructions for Windows](https://github.com/eclipse/paho.mqtt.cpp#windows)
+
+[Components CI]: https://github.com/platisd/handy-cpp-components/workflows/Components%20CI/badge.svg
