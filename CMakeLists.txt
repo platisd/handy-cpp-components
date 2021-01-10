@@ -22,7 +22,7 @@ add_compile_options(
         -Wstrict-aliasing
         -Wall
         -Wextra
-        #-Werror
+        -Werror
 )
 
 add_subdirectory(external)
