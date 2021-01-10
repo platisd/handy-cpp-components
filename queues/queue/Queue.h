@@ -16,19 +16,20 @@ struct Queue
     virtual void insert(T t) = 0;
 
     /**
-     * @brief Get a message from the queue and remove it from the queue.
-     * If there are no messages, block and wait until there are.
+     * @brief Get an element from the queue and remove it from the queue.
+     * If there are no elements, block and wait until there are.
      *
-     * @return T    The message
+     * @return T    The element
      */
-    virtual T pop() = 0;
+    virtual T extractElement() = 0;
 
     /**
-     * @brief Get a message from the queue and remove it from the queue.
-     * If there are no messages, block and wait until the timeout expires.
+     * @brief Get an element from the queue and remove it from the queue.
+     * If there are no elements, block and wait until the timeout expires.
      *
-     * @param timeout   How long to wait for a message to arrive
-     * @return std::optional<T>     The message
+     * @param timeout           How long to wait for a element to arrive
+     * @return std::optional<T> The element
      */
-    virtual std::optional<T> pop(std::chrono::milliseconds timeout) = 0;
+    virtual std::optional<T> extractElement(std::chrono::milliseconds timeout)
+        = 0;
 };

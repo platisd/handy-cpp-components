@@ -50,7 +50,7 @@ bool MqttPublisherSubscriber::runOnTopicArrival(
 
 void MqttPublisherSubscriber::processIncomingMessage()
 {
-    const auto message = mIncomingMessages.pop();
+    const auto message = mIncomingMessages.extractElement();
     if (mCallbacks.contains(message.key))
     {
         for (const auto& callbackFunction : mCallbacks[message.key])
@@ -62,7 +62,8 @@ void MqttPublisherSubscriber::processIncomingMessage()
 
 void MqttPublisherSubscriber::processOutgoingMessage()
 {
-    const auto& [unpublishedMessageIndex, message] = mOutgoingMessages.pop();
+    const auto& [unpublishedMessageIndex, message]
+        = mOutgoingMessages.extractElement();
     const auto result
         = mMqttClient.sendAndWaitForDelivery(message.key, message.value);
 

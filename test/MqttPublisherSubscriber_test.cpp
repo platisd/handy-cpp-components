@@ -73,7 +73,8 @@ TEST_F(MqttPublisherSubscriberTest,
     const auto expectedMessageIndex = 0;
     const auto queueMessage         = std::make_pair(
         expectedMessageIndex, KeyValueMessage(dummyTopic, dummyMessage));
-    EXPECT_CALL(mOutgoingQueue, pop()).WillOnce(Return(queueMessage));
+    EXPECT_CALL(mOutgoingQueue, extractElement())
+        .WillOnce(Return(queueMessage));
     EXPECT_CALL(mMqttClient, sendAndWaitForDelivery(dummyTopic, dummyMessage))
         .WillOnce(Return(true));
 
@@ -106,7 +107,7 @@ TEST_F(MqttPublisherSubscriberTest,
     EXPECT_TRUE(result);
 
     const auto expectedMessage = "(ಥ﹏ಥ)";
-    EXPECT_CALL(mIncomingQueue, pop())
+    EXPECT_CALL(mIncomingQueue, extractElement())
         .WillOnce(Return(KeyValueMessage(topic, expectedMessage)));
     EXPECT_CALL(mockCallback, run(expectedMessage));
 
@@ -128,7 +129,7 @@ TEST_F(MqttPublisherSubscriberTest,
     mMqttPublisherSubscriber->runOnTopicArrival(topic, secondTopicCallback);
 
     const auto expectedMessage = "(ಥ﹏ಥ)";
-    EXPECT_CALL(mIncomingQueue, pop())
+    EXPECT_CALL(mIncomingQueue, extractElement())
         .WillOnce(Return(KeyValueMessage(topic, expectedMessage)));
 
     EXPECT_CALL(firstMockCallback, run(expectedMessage));
@@ -152,7 +153,7 @@ TEST_F(MqttPublisherSubscriberTest,
     const auto dummyMessage = "(ಥ﹏ಥ)";
     // This won't happen in practice since we will not be subscribed to unknown
     // topics but even if such a topic arrives, it will be ignored
-    EXPECT_CALL(mIncomingQueue, pop())
+    EXPECT_CALL(mIncomingQueue, extractElement())
         .WillOnce(Return(KeyValueMessage(dummyTopic, dummyMessage)));
     EXPECT_CALL(mockCallback, run(_)).Times(0);
 

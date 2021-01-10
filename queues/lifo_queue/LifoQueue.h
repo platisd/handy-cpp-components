@@ -14,12 +14,12 @@ class LifoQueue : public Queue<T>
 public:
     void insert(T t)
     {
-        std::lock_guard<std::mutex> lock(minsertMutex);
+        std::lock_guard<std::mutex> lock(mInsertMutex);
         mElements.emplace_back(t);
         mConditionVariable.notify_one();
     }
 
-    T pop()
+    T extractElement()
     {
         std::unique_lock<std::mutex> lk(mPopMutex);
         mConditionVariable.wait(lk, [this]() { return !mElements.empty(); });
@@ -27,7 +27,7 @@ public:
         return getAndPopLastElement();
     }
 
-    std::optional<T> pop(std::chrono::milliseconds timeout)
+    std::optional<T> extractElement(std::chrono::milliseconds timeout)
     {
         std::unique_lock<std::mutex> lk(mPopMutex);
         const auto elementExists = mConditionVariable.wait_for(
@@ -42,14 +42,14 @@ public:
     }
 
 private:
-    std::mutex minsertMutex;
+    std::mutex mInsertMutex;
     std::mutex mPopMutex;
     std::condition_variable mConditionVariable;
     std::vector<T> mElements;
 
     T getAndPopLastElement()
     {
-        std::lock_guard<std::mutex> lock(minsertMutex);
+        std::lock_guard<std::mutex> lock(mInsertMutex);
         const auto lastElement = mElements.back();
         mElements.pop_back();
 

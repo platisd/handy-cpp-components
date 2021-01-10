@@ -18,38 +18,24 @@ TEST_F(LifoQueueTest, insert_WhenCalled_WillInsertElement)
     const auto expectedElement = 32;
     mLifoQueue.insert(expectedElement);
 
-    EXPECT_EQ(mLifoQueue.pop(), expectedElement);
+    EXPECT_EQ(mLifoQueue.extractElement(), expectedElement);
 }
 
-TEST_F(LifoQueueTest, pop_WhenNoElements_WillBlockUntilElementIsInserted)
+TEST_F(LifoQueueTest,
+       extractElement_WhenNoElements_WillBlockUntilElementIsInserted)
 {
-    auto pop
-        = std::async(std::launch::async, [this]() { return mLifoQueue.pop(); });
-    auto popStatus = pop.wait_for(10ms);
+    auto extract       = std::async(std::launch::async,
+                              [this]() { return mLifoQueue.extractElement(); });
+    auto extractStatus = extract.wait_for(10ms);
 
-    EXPECT_EQ(popStatus, std::future_status::timeout);
+    EXPECT_EQ(extractStatus, std::future_status::timeout);
 
     mLifoQueue.insert(1);
-    // If we exit the test case it means that `pop` has returned
+    // If we exit the test case it means that `extract` has returned
 }
 
-TEST_F(LifoQueueTest, pop_WhenNoElementsAndTimeout_WillReturnInvalidElement)
+TEST_F(LifoQueueTest,
+       extractElement_WhenNoElementsAndTimeout_WillReturnInvalidElement)
 {
-    EXPECT_FALSE(mLifoQueue.pop(1ms));
-}
-
-TEST_F(LifoQueueTest, pop_WhenElementsInsertedBeforeTimeout_WillReturnElement)
-{
-    auto pop       = std::async(std::launch::async,
-                          [this]() { return mLifoQueue.pop(1h); });
-    auto popStatus = pop.wait_for(10ms);
-
-    ASSERT_EQ(popStatus, std::future_status::timeout);
-
-    const auto expectedElement = 442;
-    mLifoQueue.insert(expectedElement);
-    const auto validElement = pop.get();
-    ASSERT_TRUE(validElement);
-
-    EXPECT_EQ(validElement.value(), expectedElement);
+    EXPECT_FALSE(mLifoQueue.extractElement(1ms));
 }

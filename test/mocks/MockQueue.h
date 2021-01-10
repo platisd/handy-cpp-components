@@ -9,9 +9,9 @@ class MockQueue : public Queue<T>
 {
 public:
     MOCK_METHOD(void, insert, (T t), (override));
-    MOCK_METHOD(T, pop, (), (override));
+    MOCK_METHOD(T, extractElement, (), (override));
     MOCK_METHOD(std::optional<T>,
-                pop,
+                extractElement,
                 (std::chrono::milliseconds timeout),
                 (override));
 };
