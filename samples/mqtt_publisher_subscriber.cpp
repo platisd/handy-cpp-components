@@ -19,7 +19,7 @@ int main()
     PahoMqttClient pahoMqttClient{mqttAsynchronousClient, kTopics};
 
     LifoQueue<KeyValueMessage> incomingQueue;
-    LifoQueue<std::pair<long, KeyValueMessage>> outgoingQueue;
+    LifoQueue<std::pair<unsigned long, KeyValueMessage>> outgoingQueue;
     MqttPublisherSubscriber mqttPublisherSubscriber{
         pahoMqttClient, incomingQueue, outgoingQueue};
 

@@ -24,7 +24,7 @@ public:
     MqttPublisherSubscriber(
         MqttClient& mqttClient,
         Queue<KeyValueMessage>& incomingMessages,
-        Queue<std::pair<long, KeyValueMessage>>& outgoingMessages);
+        Queue<std::pair<unsigned long, KeyValueMessage>>& outgoingMessages);
 
     /* Refer to PublisherSubscriber for documentation */
     std::future<bool> publish(const std::string& topic,
@@ -52,7 +52,7 @@ public:
 private:
     MqttClient& mMqttClient;
     Queue<KeyValueMessage>& mIncomingMessages;
-    Queue<std::pair<long, KeyValueMessage>>& mOutgoingMessages;
+    Queue<std::pair<unsigned long, KeyValueMessage>>& mOutgoingMessages;
     const std::vector<std::string> mTopicsToSubscribe;
 
     std::mutex mPublishMutex;
@@ -61,6 +61,7 @@ private:
                        std::vector<std::function<void(const std::string&)>>>
         mCallbacks;
 
-    std::unordered_map<long, std::promise<bool>> mUnpublishedMessagePromises;
-    long mUnpublishedMessageIndex{0};
+    std::unordered_map<unsigned long, std::promise<bool>>
+        mUnpublishedMessagePromises;
+    unsigned long mUnpublishedMessageIndex{0};
 };

@@ -32,7 +32,7 @@ struct MqttPublisherSubscriberTest : public Test
 
     MockMqttClient mMqttClient;
     MockQueue<KeyValueMessage> mIncomingQueue;
-    MockQueue<std::pair<long, KeyValueMessage>> mOutgoingQueue;
+    MockQueue<std::pair<unsigned long, KeyValueMessage>> mOutgoingQueue;
     std::unique_ptr<MqttPublisherSubscriber> mMqttPublisherSubscriber;
     std::function<void(const std::string&, const std::string&)>
         mOnReceiveCallback;

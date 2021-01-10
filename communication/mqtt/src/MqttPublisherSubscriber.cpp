@@ -6,7 +6,7 @@
 MqttPublisherSubscriber::MqttPublisherSubscriber(
     MqttClient& mqttClient,
     Queue<KeyValueMessage>& incomingMessages,
-    Queue<std::pair<long, KeyValueMessage>>& outgoingMessages)
+    Queue<std::pair<unsigned long, KeyValueMessage>>& outgoingMessages)
     : mMqttClient{mqttClient}
     , mIncomingMessages{incomingMessages}
     , mOutgoingMessages{outgoingMessages}
