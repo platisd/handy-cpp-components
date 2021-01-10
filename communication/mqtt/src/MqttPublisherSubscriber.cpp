@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <cassert>
 
 #include "MqttPublisherSubscriber.h"
 
@@ -65,6 +66,7 @@ void MqttPublisherSubscriber::processOutgoingMessage()
     const auto result
         = mMqttClient.sendAndWaitForDelivery(message.key, message.value);
 
+    assert(mUnpublishedMessagePromises.contains(unpublishedMessageIndex));
     mUnpublishedMessagePromises[unpublishedMessageIndex].set_value(result);
     mUnpublishedMessagePromises.erase(unpublishedMessageIndex);
 }

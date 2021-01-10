@@ -2,3 +2,9 @@
 add_executable(lifo_queue_test LifoQueue_test.cpp)
 target_link_libraries(lifo_queue_test lifo_queue)
 configure_test(lifo_queue_test)
+
+# MqttPublisherSubscriber_test
+add_executable(mqtt_publisher_subscriber_test MqttPublisherSubscriber_test.cpp)
+target_include_directories(mqtt_publisher_subscriber_test PUBLIC mocks)
+target_link_libraries(mqtt_publisher_subscriber_test mqtt_publisher_subscriber)
+configure_test(mqtt_publisher_subscriber_test)

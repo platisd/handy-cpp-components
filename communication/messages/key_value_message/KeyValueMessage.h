@@ -8,6 +8,11 @@ struct KeyValueMessage
     {
     }
 
+    inline bool operator==(const KeyValueMessage& other) const
+    {
+        return (key == other.key) && (value == other.value);
+    }
+
     const std::string key;
     const std::string value;
 };
