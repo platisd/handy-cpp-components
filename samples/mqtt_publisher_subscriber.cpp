@@ -1,5 +1,6 @@
 #include <iostream>
 
+#include "FifoQueue.h"
 #include "KeyValueMessage.h"
 #include "LifoQueue.h"
 #include "MqttPublisherSubscriber.h"
@@ -19,7 +20,7 @@ int main()
     PahoMqttClient pahoMqttClient{mqttAsynchronousClient, kTopics};
 
     LifoQueue<KeyValueMessage> incomingQueue;
-    LifoQueue<std::pair<unsigned long, KeyValueMessage>> outgoingQueue;
+    FifoQueue<std::pair<unsigned long, KeyValueMessage>> outgoingQueue;
     MqttPublisherSubscriber mqttPublisherSubscriber{
         pahoMqttClient, incomingQueue, outgoingQueue};
 

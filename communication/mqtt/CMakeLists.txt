@@ -8,7 +8,7 @@ target_include_directories(mqtt_publisher_subscriber
     include)
 target_link_libraries(mqtt_publisher_subscriber
     PUBLIC
-    queue_interface
+    generic_queue_interfaces
     key_value_message
     publisher_subscriber_interface
     mqtt_client_interface)

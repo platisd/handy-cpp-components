@@ -13,7 +13,7 @@ struct Queue
      *
      * @param t     The element to add
      */
-    virtual void insert(T t) = 0;
+    virtual void insert(const T& t) = 0;
 
     /**
      * @brief Get an element from the queue and remove it from the queue.
