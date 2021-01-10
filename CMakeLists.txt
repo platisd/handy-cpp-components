@@ -30,6 +30,6 @@ enable_testing()
 
 add_subdirectory(queues)
 add_subdirectory(communication)
-add_subdirectory(services)
+add_subdirectory(samples)
 
 add_subdirectory(test)

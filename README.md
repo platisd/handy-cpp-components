@@ -13,13 +13,16 @@ The architectural and design drivers behind them are:
 * Simplicity
   * Each component should be simple enough to set up and its code-walkthrough to be
     be feasible during an 1-hour meetup
+
+In the [samples](samples) directory you can find how these components may be utilized.
+
 ## Components
 
 ### MQTT Publisher Subscriber
 
 A collection of classes that allow you to register callbacks to be invoked upon the reception of
 a particular MQTT topic.
-The [example](services/mqtt_publisher_subscriber.cpp) illustrates how the component could be used
+The [relevant sample](samples/mqtt_publisher_subscriber.cpp) illustrates how the component could be used
 with two threads that asynchronously send and receive messages, while invoking the relevant callbacks.
 
 ## Installing depenencies
