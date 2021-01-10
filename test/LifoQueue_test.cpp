@@ -1,6 +1,7 @@
 #include <chrono>
 #include <future>
 
+#include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
 #include "LifoQueue.h"
@@ -55,4 +56,23 @@ TEST_F(LifoQueueTest,
     ASSERT_TRUE(validElement);
 
     EXPECT_EQ(validElement.value(), expectedElement);
+}
+
+TEST_F(LifoQueueTest,
+       extractElement_WhenMultipleElements_WillReturnElementsInCorrectOrder)
+{
+    const auto firstElement  = 32;
+    const auto secondElement = 33;
+    const auto thirdElement  = 34;
+
+    mLifoQueue.insert(firstElement);
+    mLifoQueue.insert(secondElement);
+    mLifoQueue.insert(thirdElement);
+
+    {
+        InSequence seq;
+        EXPECT_EQ(mLifoQueue.extractElement(), thirdElement);
+        EXPECT_EQ(mLifoQueue.extractElement(), secondElement);
+        EXPECT_EQ(mLifoQueue.extractElement(), firstElement);
+    }
 }
