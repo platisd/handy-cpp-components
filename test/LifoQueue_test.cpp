@@ -39,3 +39,20 @@ TEST_F(LifoQueueTest,
 {
     EXPECT_FALSE(mLifoQueue.extractElement(1ms));
 }
+
+TEST_F(LifoQueueTest,
+       extractElement_WhenElementsInsertedBeforeTimeout_WillReturnElement)
+{
+    auto extract = std::async(
+        std::launch::async, [this]() { return mLifoQueue.extractElement(1h); });
+    auto extractStatus = extract.wait_for(10ms);
+
+    ASSERT_EQ(extractStatus, std::future_status::timeout);
+
+    const auto expectedElement = 442;
+    mLifoQueue.insert(expectedElement);
+    const auto validElement = extract.get();
+    ASSERT_TRUE(validElement);
+
+    EXPECT_EQ(validElement.value(), expectedElement);
+}
