@@ -52,8 +52,8 @@ int main()
 
     std::cout << "Waiting for the message to be delivered" << std::endl;
     const auto published = publishResult.get();
-    std::cout << "Publish result: " << (published ? "true" : "false")
-              << std::endl;
+    std::cout << "Message " << (published ? "successfully" : "unsuccessfully")
+              << " delivered" << std::endl;
 
     mqttSender.join();
     mqttReceiver.join();
