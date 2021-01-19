@@ -8,14 +8,15 @@
 
 namespace
 {
-const std::vector<std::string> kTopics{"/mqtt-workshop/io",
-                                       "/mqtt-workshop/restart"};
+const std::vector<std::string> kTopics{"/grcpp-workshop/io",
+                                       "/grcpp-workshop/restart"};
+const std::string kMqttTopicToPublish{"/grcpp-workshop/cmd"};
 } // namespace
 
 int main()
 {
-    mqtt::async_client mqttAsynchronousClient{"localhost",
-                                              "mqtt_publisher_subscriber"};
+    mqtt::async_client mqttAsynchronousClient{"broker.hivemq.com",
+                                              "grcpp_demo_client"};
 
     PahoMqttClient pahoMqttClient{mqttAsynchronousClient, kTopics};
 
@@ -25,13 +26,18 @@ int main()
         pahoMqttClient, incomingQueue, outgoingQueue};
 
     mqttPublisherSubscriber.runOnTopicArrival(
-        "/mqtt-workshop/io", [](const std::string& message) {
+        kTopics[0], [](const std::string& message) {
             std::cout << "Callback 1: " << message << std::endl;
         });
 
     mqttPublisherSubscriber.runOnTopicArrival(
-        "/mqtt-workshop/io", [](const std::string& message) {
+        kTopics[0], [](const std::string& message) {
             std::cout << "Callback 2: " << message << std::endl;
+        });
+
+    mqttPublisherSubscriber.runOnTopicArrival(
+        kTopics[1], [](const std::string& message) {
+            std::cout << "Callback 3: " << message << std::endl;
         });
 
     std::thread mqttReceiver([&mqttPublisherSubscriber]() {
@@ -48,8 +54,8 @@ int main()
         }
     });
 
-    auto publishResult
-        = mqttPublisherSubscriber.publish("/blerp", "message from blerp");
+    auto publishResult = mqttPublisherSubscriber.publish(
+        kMqttTopicToPublish, "message from mqttPublisherSubscriber");
 
     std::cout << "Waiting for the message to be delivered" << std::endl;
     const auto published = publishResult.get();
